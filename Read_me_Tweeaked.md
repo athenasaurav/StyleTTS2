@@ -26,6 +26,7 @@ Online demo: [Hugging Face](https://huggingface.co/spaces/styletts2/styletts2) (
 git clone https://github.com/yl4579/StyleTTS2.git
 cd StyleTTS2
 ```
+
 3. Install python requirements: 
 ```bash
 pip install -r requirements.txt
