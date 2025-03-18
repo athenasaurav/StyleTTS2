@@ -19,6 +19,24 @@ Online demo: [Hugging Face](https://huggingface.co/spaces/styletts2/styletts2) (
 - [x] Add a finetuning script for new speakers with base pre-trained multispeaker models
 - [ ] Fix DDP (accelerator) for `train_second.py` **(I have tried everything I could to fix this but had no success, so if you are willing to help, please see [#7](https://github.com/yl4579/StyleTTS2/issues/7))**
 
+## On a new Compute (Ubuntu 24.0)
+
+Once you create a new compute make sure you install Cuda, GCC etc using following [link](https://www.cherryservers.com/blog/install-cuda-ubuntu). Remember please install the correct and recommended versions only. Also in end you need to ```source ./~bashrc``` to activate nvcc.
+
+After that install Virtual Env and create an new Env and activate it :
+```bash
+sudo apt update
+sudo apt install python3-venv -y
+python3 -m venv TTS
+source TTS/bin/activate
+```
+Along with that make sure you have installed Python development headers (Python.h) using following commands :
+```bash
+sudo apt-get update && sudo apt-get install python3-dev
+sudo apt-get install build-essential
+```
+
+
 ## Pre-requisites
 1. Python >= 3.7
 2. Clone this repository:
@@ -26,10 +44,15 @@ Online demo: [Hugging Face](https://huggingface.co/spaces/styletts2/styletts2) (
 git clone https://github.com/yl4579/StyleTTS2.git
 cd StyleTTS2
 ```
-
 3. Install python requirements: 
 ```bash
 pip install -r requirements.txt
+or
+#pip install SoundFile torchaudio munch torch pydub pyyaml librosa nltk matplotlib accelerate transformers phonemizer einops einops-exts tqdm typing-extensions git+https://github.com/resemble-ai/monotonic_align.git
+```
+Also make sure you install extra dependencies using :
+```bash
+pip install tensorboard pandas
 ```
 On Windows add:
 ```bash
@@ -87,6 +110,17 @@ If you are using a **single GPU** (because the script doesn't work with DDP) and
 accelerate launch --mixed_precision=fp16 --num_processes=1 train_finetune_accelerate.py --config_path ./Configs/config_ft.yml
 ```
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/yl4579/StyleTTS2/blob/main/Colab/StyleTTS2_Finetune_Demo.ipynb)
+
+Updated code to run acclearte fine tuning:
+```bash
+PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True accelerate launch \
+  --mixed_precision=fp16 \
+  --num_processes=1 \
+  --gradient_accumulation_steps=2 \
+  train_finetune_accelerate.py \
+  --config_path ./Configs/config_ft.yml
+```
+Make sure you play with Batch Sizes depending on Your RAM and GPU. For me Batch Size = 6 worked which you can edit in ```Configs/config_ft.yml```
 
 ### Common Issues
 [@Kreevoz](https://github.com/Kreevoz) has made detailed notes on common issues in finetuning, with suggestions in maximizing audio quality: [#81](https://github.com/yl4579/StyleTTS2/discussions/81). Some of these also apply to training from scratch. [@IIEleven11](https://github.com/IIEleven11) has also made a guideline for fine-tuning: [#128](https://github.com/yl4579/StyleTTS2/discussions/128).
